@@ -44,8 +44,8 @@ provider "aws" {
 #-------------------VPC---------------------
 resource "aws_vpc" "web_vpc" {
     cidr_block = "10.0.0.0/16"
-    enable_dns_support = true
-    enable_dns_hostnames = true
+    enable_dns_support = true #Enables or disables DNS resolution within the VPC.
+    enable_dns_hostnames = false # Enables or disables the assignment of public DNS hostnames to instances launched in the VPC.
     tags = {
         Name = "web_vpc"
     }
@@ -67,5 +67,53 @@ resource "aws_internet_gateway" "web_igw" {
     vpc_id = aws_vpc.web_vpc.id
     tags = {
         Name = "web_igw"
+    }
+}
+
+#-------------------ROUTE TABLE---------------------
+resource "aws_route_table" "web_route_table" {
+    vpc_id = aws_vpc.web_vpc.id
+    route {
+        cidr_block = "0.0.0.0/0"
+        gateway_id = aws_internet_gateway.web_igw.id
+  
+}
+    tags = {
+        Name = "web_route_table"
+    }
+}
+
+#-------------------ROUTE TABLE ASSOCIATION---------------------
+resource "aws_route_table_association" "web_route_table_assoc" {
+    subnet_id      = aws_subnet.web_subnet.id  # Associate the route table with your subnet
+    route_table_id = aws_route_table.web_route_table.id
+}
+
+#-------------------SECURITY GROUP---------------------
+resource "aws_security_group" "web_sg" {
+    vpc_id = aws_vpc.web_vpc.id
+    name   = "web_sg"
+    description = "Allow HTTP and SSH traffic"
+  
+    ingress {
+        from_port   = 80
+        to_port     = 80
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"] # Allow HTTP traffic from anywhere
+    } 
+    ingress {
+        from_port   = 22
+        to_port     = 22
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/0"] # Allow SSH traffic from anywhere
+    }
+    egress {
+        from_port   = 0
+        to_port     = 0
+        protocol    = "-1" # Allow all outbound traffic with any protocol
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    tags = {
+        Name = "web_sg"
     }
 }
