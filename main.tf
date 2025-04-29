@@ -117,3 +117,32 @@ resource "aws_security_group" "web_sg" {
         Name = "web_sg"
     }
 }
+
+#-------------------EC2 INSTANCE---------------------
+resource "aws_instance" "web_instance" {
+    ami           = "ami-0dba2cb6798deb6d8" # Ubuntu 20.04 LTS
+    instance_type = "t2.micro"
+    subnet_id     = aws_subnet.web_subnet.id
+    vpc_security_group_ids = [aws_security_group.web_sg.id]
+    key_name      = "master_key" #The key pair is used for authentication when connecting to the instance via SSH.
+  
+    # User data script to install and start Nginx, This script will run when the instance is launched
+    # 1.)This starts a shell script using Bash
+    # 2.)Updates the package list
+    # 3.)Installs Nginx
+    # 4.)Starts the Nginx service
+    # 5.)Enables Nginx to start on boot
+    # 6.)Ends the script
+
+      user_data = <<-EOF
+        #!/bin/bash
+        sudo apt update
+        sudo apt install -y nginx
+        sudo systemctl start nginx
+        sudo systemctl enable nginx
+    EOF
+ 
+    tags = {
+        Name = "web_instance"
+    }
+}
