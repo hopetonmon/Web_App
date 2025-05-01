@@ -105,7 +105,7 @@ resource "aws_security_group" "web_sg" {
         from_port   = 22
         to_port     = 22
         protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/0"] # Allow SSH traffic from anywhere
+        cidr_blocks = ["0.0.0.0/0"] # Allow SSH traffic from any(where
     }
     egress {
         from_port   = 0
@@ -145,4 +145,8 @@ resource "aws_instance" "web_instance" {
     tags = {
         Name = "web_instance"
     }
+}
+
+output "web_instance_public_ip" {  #After running terraform apply, Terraform will display the output values directly in the console. Additionally, you can view all outputs later by running: terraform apply
+  value = aws_instance.web_instance.public_ip
 }
