@@ -28,7 +28,7 @@ variable "AWS_REGION" {
     type        = string
 }
 
-variable "AVALABILITY_ZONE" {
+variable "AVAILABILITY_ZONE" {
     description = "Availability Zone (Distinct loaction in the Region)"
     type        = string
 }
@@ -55,7 +55,7 @@ resource "aws_vpc" "web_vpc" {
 resource "aws_subnet" "web_subnet" {
     vpc_id            = aws_vpc.web_vpc.id
     cidr_block        = "10.0.1.0/24"
-    availability_zone =  var.AVALABILITY_ZONE
+    availability_zone =  var.AVAILABILITY_ZONE
     map_public_ip_on_launch = true #If set to true: Instances launched in this subnet will automatically be assigned a public IP address. This is useful for subnets that need to host publicly accessible resources, such as web servers.
     tags = {
         Name = "web_subnet"
