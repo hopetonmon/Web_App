@@ -22,7 +22,6 @@ tasks:
 
       echo "Terraform installed successfully!"
 
-      # Indicate that the Terraform installation task is complete
       gp sync-done install-terraform
 
     # Optional: Add command to verify installation after init
