@@ -127,7 +127,7 @@ resource "aws_instance" "web_instance" {
     key_name      = "master_key2" #The key pair is used for authentication when connecting to the instance via SSH.
   
     # User data script to install and start Nginx, This script will run when the instance is launched
-    # 1.)This starts a shell script using Bash
+    # 1.)This starts a shell script using Bash running on the instances first boot.
     # 2.)Updates the package list
     # 3.)Installs Nginx
     # 4.)Starts the Nginx service
@@ -138,6 +138,7 @@ resource "aws_instance" "web_instance" {
         #!/bin/bash
         sudo apt update
         sudo apt install -y nginx
+        echo "<h1>Hello from My Terraform Web Server!</h1><p>This message was deployed using Terraform user_data.</p>" | sudo tee /var/share/nginx/html/index.html
         sudo systemctl start nginx
         sudo systemctl enable nginx
     EOF
