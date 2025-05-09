@@ -9,6 +9,19 @@ terraform {
     required_version = ">= 1.0.0"
 }
 
+#-------------------TERRAFORM CLOUD---------------------
+# This block configures the Terraform Cloud backend for storing the state file remotely.
+terraform { 
+  cloud { 
+    
+    organization = "Foundationmon" 
+
+    workspaces { 
+      name = "Web_App" 
+    } 
+  } 
+}
+
 #-----------------------VARIABLES-----------------------------
 variable "TERRY_ACCESS_KEY" {
     description = "Terry's AWS Access Key"
