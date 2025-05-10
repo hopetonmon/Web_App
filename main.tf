@@ -137,7 +137,7 @@ resource "aws_instance" "web_instance" {
     instance_type = "t2.micro"
     subnet_id     = aws_subnet.web_subnet.id
     vpc_security_group_ids = [aws_security_group.web_sg.id]
-    key_name      = "master_key" #The key pair is used for authentication when connecting to the instance via SSH.
+    key_name      = "car_key" #The key pair is used for authentication when connecting to the instance via SSH.
   
     # User data script to install and start Nginx, This script will run when the instance is launched
     # 1.)This starts a shell script using Bash running on the instances first boot.
