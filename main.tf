@@ -23,14 +23,14 @@ terraform {
 }
 
 #-----------------------VARIABLES-----------------------------
-variable "TERRY_ACCESS_KEY" {
-    description = "Terry's AWS Access Key"
+variable "HOPETONMON_COPY_ACCESS_KEY" {
+    description = "HopetonMon Copy AWS Access Key"
     type        = string
     sensitive = true
 }
 
-variable "TERRY_SECRET_KEY" {
-    description = "Terry's AWS Secret Key"
+variable "HOPETONMON_COPY_SECRET_KEY" {
+    description = "HopetonMon Copy AWS Secret Key"
     type        = string
     sensitive = true
   
@@ -49,8 +49,8 @@ variable "AVAILABILITY_ZONE" {
 #------------------PROVIDERS----------------------
 provider "aws" {
     region     = var.AWS_REGION
-    access_key = var.TERRY_ACCESS_KEY
-    secret_key = var.TERRY_SECRET_KEY
+    access_key = var.HOPETONMON_COPY_ACCESS_KEY
+    secret_key = var.HOPETONMON_COPY_SECRET_KEY
   
 }
 
