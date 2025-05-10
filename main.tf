@@ -151,7 +151,7 @@ resource "aws_instance" "web_instance" {
         #!/bin/bash
         sudo apt update
         sudo apt install -y nginx
-        echo "<h1>Hello from My Terraform Web Server!</h1><p>This message was deployed using Terraform user_data.</p>" | sudo tee /var/share/nginx/html/index.html
+        echo "<h1>Hello from My Terraform Web Server!</h1><p>This message was deployed using Terraform user_data.</p>" | sudo tee /var/www/html/index.html
         sudo systemctl start nginx
         sudo systemctl enable nginx
     EOF
