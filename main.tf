@@ -131,6 +131,27 @@ resource "aws_security_group" "web_sg" {
     }
 }
 
+resource "aws_security_group" "alb_sg" { #Security Group for ALB
+  vpc_id = aws_vpc.web_vpc.id
+  name   = "alb_sg"
+  ingress {
+    description = "HTTP from anywhere"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "alb_sg"
+  }
+}
+
 #-------------------EC2 INSTANCE---------------------
 resource "aws_instance" "web_instance" {
     ami           = "ami-0dba2cb6798deb6d8" # Ubuntu 20.04 LTS
