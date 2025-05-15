@@ -46,6 +46,12 @@ variable "AVAILABILITY_ZONE" {
     type        = string
 }
 
+variable "AVAILABILITY_ZONE2" {
+    description = "Availability Zone 2 (Distinct loaction in the Region)"
+    type        = string
+  
+}
+
 #------------------PROVIDERS----------------------
 provider "aws" {
     region     = var.AWS_REGION
@@ -65,7 +71,7 @@ resource "aws_vpc" "web_vpc" {
 }
 
 #-------------------SUBNETS---------------------
-resource "aws_subnet" "web_subnet" {
+resource "aws_subnet" "web_subnet1" {
     vpc_id            = aws_vpc.web_vpc.id
     cidr_block        = "10.0.1.0/24"
     availability_zone =  var.AVAILABILITY_ZONE
@@ -73,6 +79,17 @@ resource "aws_subnet" "web_subnet" {
     tags = {
         Name = "web_subnet"
     }
+}
+
+resource "aws_subnet" "web_subnet2" {
+    vpc_id            = aws_vpc.web_vpc.id
+    cidr_block        = "10.0.1.0/24"
+    availability_zone = var.AVAILABILITY_ZONE2
+    map_public_ip_on_launch = true #If set to true: Instances launched in this subnet will automatically be assigned a public IP address. This is useful for subnets that need to host publicly accessible resources, such as web servers.
+    tags = {
+        Name = "web_subnet2"
+    }
+  
 }
 
 #-------------------INTERNET GATEWAY---------------------
@@ -102,6 +119,31 @@ resource "aws_route_table_association" "web_route_table_assoc" {
     route_table_id = aws_route_table.web_route_table.id
 }
 
+resource "aws_route_table_association" "web_route_table_assoc2" {
+    subnet_id      = aws_subnet.web_subnet2.id  # Associate the route table with your subnet
+    route_table_id = aws_route_table.web_route_table.id
+}
+
+#-------------------LOAD BALANCER---------------------
+resource "aws_lb" "web_alb" {
+    name               = "web-alb"
+    internal           = false
+    load_balancer_type = "application"
+    security_groups    = [aws_security_group.alb_sg.id]
+    subnets            = [aws_subnet.web_subnet1, aws_subnet.web_subnet2.id]
+  
+    enable_deletion_protection = false
+  
+    enable_http2 = true
+  
+    idle_timeout {
+        timeout_seconds = 60
+    }
+  
+    tags = {
+        Name = "web_alb"
+    }
+}
 #-------------------SECURITY GROUP---------------------
 resource "aws_security_group" "web_sg" {
     vpc_id = aws_vpc.web_vpc.id
