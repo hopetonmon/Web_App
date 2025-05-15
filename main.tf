@@ -130,16 +130,9 @@ resource "aws_lb" "web_alb" {
     internal           = false
     load_balancer_type = "application"
     security_groups    = [aws_security_group.alb_sg.id]
-    subnets            = [aws_subnet.web_subnet1, aws_subnet.web_subnet2.id]
-  
-    enable_deletion_protection = false
-  
+    subnets            = [aws_subnet.web_subnet1, aws_subnet.web_subnet2.id]  
     enable_http2 = true
-  
-    idle_timeout {
-        timeout_seconds = 60
-    }
-  
+
     tags = {
         Name = "web_alb"
     }
