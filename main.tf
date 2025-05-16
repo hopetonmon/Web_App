@@ -249,6 +249,10 @@ resource "aws_launch_template" "web_launch_template" {
     lifecycle {
         create_before_destroy = true
     }
+
+    tags = {
+        Name = "web_launch_template"
+    }
 }
 
 #-------------------AUTO SCALING GROUP---------------------
@@ -261,14 +265,29 @@ resource "aws_autoscaling_group" "web_asg" {
         id      = aws_launch_template.web_launch_template.id
         version = "$Latest"
     }
-    tags = [
-        {
-            key                 = "Name"
-            value               = "web_asg_instance"
-            propagate_at_launch = true
-        },
-    ]
+    tag {
+        key                 = "Name"
+        value               = "web_asg_instance"
+        propagate_at_launch = true
+    }
 }
+
+#-------------------AUTO SCALING POLICY---------------------
+resource "aws_autoscaling_policy" "web_scale_up" {
+    name                   = "web-scale-up"
+    scaling_adjustment      = 1
+    adjustment_type        = "ChangeInCapacity"
+    cooldown               = 300
+    autoscaling_group_name = aws_autoscaling_group.web_asg.name
+}
+resource "aws_autoscaling_policy" "web_scale_down" {
+    name                   = "web-scale-down"
+    scaling_adjustment      = -1
+    adjustment_type        = "ChangeInCapacity"
+    cooldown               = 300
+    autoscaling_group_name = aws_autoscaling_group.web_asg.name
+}
+
 #-------------------OUTPUTS---------------------
 output "web_instance_public_ip" {  #After running terraform apply, Terraform will display the output values directly in the console. Additionally, you can view all outputs later by running: terraform apply
   value = aws_instance.web_instance.public_ip
