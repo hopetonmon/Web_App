@@ -137,6 +137,25 @@ resource "aws_lb" "web_alb" {
         Name = "web_alb"
     }
 }
+#-------------------TARGET GROUP---------------------
+resource "aws_lb_target_group" "web_target_group" { #Target Group is used by the ALB to route requests to the registered EC2 instances.
+    name     = "web-target-group"
+    port     = 80
+    protocol = "HTTP"
+    vpc_id   = aws_vpc.web_vpc.id
+
+    health_check {
+        path                = "/"
+        interval            = 30
+        timeout             = 5
+        healthy_threshold  = 2
+        unhealthy_threshold = 2
+    }
+
+    tags = {
+        Name = "web_target_group"
+    }
+}
 #-------------------SECURITY GROUP---------------------
 resource "aws_security_group" "web_sg" {
     vpc_id = aws_vpc.web_vpc.id
@@ -217,6 +236,7 @@ resource "aws_instance" "web_instance" {
     }
 }
 
+#-------------------OUTPUTS---------------------
 output "web_instance_public_ip" {  #After running terraform apply, Terraform will display the output values directly in the console. Additionally, you can view all outputs later by running: terraform apply
   value = aws_instance.web_instance.public_ip
 }
