@@ -229,6 +229,14 @@ resource "aws_launch_template" "web_launch_template" {
     instance_type = "t2.micro"
     key_name      = "car_key" #The key pair is used for authentication when connecting to the instance via SSH.
   
+   # User data script to install and start Nginx, This script will run when the instance is launched
+    # 1.)This starts a shell script using Bash running on the instances first boot.
+    # 2.)Updates the package list
+    # 3.)Installs Nginx
+    # 4.)Starts the Nginx service
+    # 5.)Enables Nginx to start on boot
+    # 6.)Ends the script
+
     user_data = <<-EOF
         #!/bin/bash
         sudo apt update
@@ -243,36 +251,24 @@ resource "aws_launch_template" "web_launch_template" {
     }
 }
 
-#-------------------EC2 INSTANCE---------------------
-resource "aws_instance" "web_instance" {
-    ami           = "ami-0dba2cb6798deb6d8" # Ubuntu 20.04 LTS
-    instance_type = "t2.micro"
-    subnet_id     = aws_subnet.web_subnet.id
-    vpc_security_group_ids = [aws_security_group.web_sg.id]
-    key_name      = "car_key" #The key pair is used for authentication when connecting to the instance via SSH.
-  
-    # User data script to install and start Nginx, This script will run when the instance is launched
-    # 1.)This starts a shell script using Bash running on the instances first boot.
-    # 2.)Updates the package list
-    # 3.)Installs Nginx
-    # 4.)Starts the Nginx service
-    # 5.)Enables Nginx to start on boot
-    # 6.)Ends the script
-
-      user_data = <<-EOF
-        #!/bin/bash
-        sudo apt update
-        sudo apt install -y nginx
-        echo "<h1>Hello from My Terraform Web Server!</h1><p>This message was deployed using Terraform user_data.</p>" | sudo tee /var/www/html/index.html
-        sudo systemctl start nginx
-        sudo systemctl enable nginx
-    EOF
- 
-    tags = {
-        Name = "web_instance"
+#-------------------AUTO SCALING GROUP---------------------
+resource "aws_autoscaling_group" "web_asg" {
+    desired_capacity     = 1
+    max_size             = 5
+    min_size             = 1
+    vpc_zone_identifier = [aws_subnet.web_subnet.id, aws_subnet.web_subnet2.id]
+    launch_template {
+        id      = aws_launch_template.web_launch_template.id
+        version = "$Latest"
     }
+    tags = [
+        {
+            key                 = "Name"
+            value               = "web_asg_instance"
+            propagate_at_launch = true
+        },
+    ]
 }
-
 #-------------------OUTPUTS---------------------
 output "web_instance_public_ip" {  #After running terraform apply, Terraform will display the output values directly in the console. Additionally, you can view all outputs later by running: terraform apply
   value = aws_instance.web_instance.public_ip
