@@ -222,6 +222,27 @@ resource "aws_security_group" "alb_sg" { #Security Group for ALB
   }
 }
 
+#-------------------LAUNCH TEMPLATE---------------------
+resource "aws_launch_template" "web_launch_template" {
+    name_prefix   = "web-launch-template-"
+    image_id      = "ami-0dba2cb6798deb6d8" # Ubuntu 20.04 LTS
+    instance_type = "t2.micro"
+    key_name      = "car_key" #The key pair is used for authentication when connecting to the instance via SSH.
+  
+    user_data = <<-EOF
+        #!/bin/bash
+        sudo apt update
+        sudo apt install -y nginx
+        echo "<h1>Hello from My (SCALED) Terraform Web Server!</h1><p>This is a Scaled Website running on a EC2 instance user_data.</p>" | sudo tee /var/www/html/index.html
+        sudo systemctl start nginx
+        sudo systemctl enable nginx
+    EOF
+
+    lifecycle {
+        create_before_destroy = true
+    }
+}
+
 #-------------------EC2 INSTANCE---------------------
 resource "aws_instance" "web_instance" {
     ami           = "ami-0dba2cb6798deb6d8" # Ubuntu 20.04 LTS
