@@ -115,7 +115,7 @@ resource "aws_route_table" "web_route_table" {
 
 #-------------------ROUTE TABLE ASSOCIATION---------------------
 resource "aws_route_table_association" "web_route_table_assoc" {
-    subnet_id      = aws_subnet.web_subnet1  # Associate the route table with your subnet
+    subnet_id      = aws_subnet.web_subnet1.id  # Associate the route table with your subnet
     route_table_id = aws_route_table.web_route_table.id
 }
 
@@ -130,7 +130,7 @@ resource "aws_lb" "web_alb" {
     internal           = false
     load_balancer_type = "application"
     security_groups    = [aws_security_group.alb_sg.id]
-    subnets            = [aws_subnet.web_subnet1, aws_subnet.web_subnet2.id]  
+    subnets            = [aws_subnet.web_subnet1.id, aws_subnet.web_subnet2.id]  
     enable_http2 = true
 
     tags = {
@@ -260,7 +260,7 @@ resource "aws_autoscaling_group" "web_asg" {
     desired_capacity     = 1
     max_size             = 5
     min_size             = 1
-    vpc_zone_identifier = [aws_subnet.web_subnet1, aws_subnet.web_subnet2.id]
+    vpc_zone_identifier = [aws_subnet.web_subnet1.id, aws_subnet.web_subnet2.id]
     launch_template {
         id      = aws_launch_template.web_launch_template.id
         version = "$Latest"
@@ -288,7 +288,30 @@ resource "aws_autoscaling_policy" "web_scale_down" {
     autoscaling_group_name = aws_autoscaling_group.web_asg.name
 }
 
-#-------------------OUTPUTS---------------------
-output "web_instance_public_ip" {  #After running terraform apply, Terraform will display the output values directly in the console. Additionally, you can view all outputs later by running: terraform apply
-  value = aws_instance.web_instance.public_ip
+
+#-------------------DATA-------------------------
+data "aws_instances" "web_instances" {
+  filter {
+    name   = "tag:Name"
+    values = ["web_asg_instance"]
+  }
+
+  filter {
+    name   = "instance-state-name"
+    values = ["running"]
+  }
+
+  depends_on = [aws_autoscaling_group.web_asg]
 }
+
+#-------------------OUTPUTS---------------------
+output "web_instance_public_ips" { #After running terraform apply, Terraform will display the output values directly in the console. Additionally, you can view all outputs later by running: terraform apply
+  description = "Public IPs of EC2 instances in the ASG"
+  value       = data.aws_instances.web_instances.public_ips
+}
+
+output "web_instance_private_ips" {
+  description = "Private IPs of EC2 instances in the ASG"
+  value       = data.aws_instances.web_instances.private_ips
+}
+
