@@ -115,7 +115,7 @@ resource "aws_route_table" "web_route_table" {
 
 #-------------------ROUTE TABLE ASSOCIATION---------------------
 resource "aws_route_table_association" "web_route_table_assoc" {
-    subnet_id      = aws_subnet.web_subnet.id  # Associate the route table with your subnet
+    subnet_id      = aws_subnet.web_subnet1  # Associate the route table with your subnet
     route_table_id = aws_route_table.web_route_table.id
 }
 
@@ -260,7 +260,7 @@ resource "aws_autoscaling_group" "web_asg" {
     desired_capacity     = 1
     max_size             = 5
     min_size             = 1
-    vpc_zone_identifier = [aws_subnet.web_subnet.id, aws_subnet.web_subnet2.id]
+    vpc_zone_identifier = [aws_subnet.web_subnet1, aws_subnet.web_subnet2.id]
     launch_template {
         id      = aws_launch_template.web_launch_template.id
         version = "$Latest"
