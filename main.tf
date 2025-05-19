@@ -83,7 +83,7 @@ resource "aws_subnet" "web_subnet1" {
 
 resource "aws_subnet" "web_subnet2" {
     vpc_id            = aws_vpc.web_vpc.id
-    cidr_block        = "10.0.1.0/24"
+    cidr_block        = "10.0.0.0/24"
     availability_zone = var.AVAILABILITY_ZONE2
     map_public_ip_on_launch = true #If set to true: Instances launched in this subnet will automatically be assigned a public IP address. This is useful for subnets that need to host publicly accessible resources, such as web servers.
     tags = {
@@ -224,37 +224,30 @@ resource "aws_security_group" "alb_sg" { #Security Group for ALB
 
 #-------------------LAUNCH TEMPLATE---------------------
 resource "aws_launch_template" "web_launch_template" {
-    name_prefix   = "web-launch-template-"
-    image_id      = "ami-0dba2cb6798deb6d8" # Ubuntu 20.04 LTS
-    instance_type = "t2.micro"
-    key_name      = "car_key" #The key pair is used for authentication when connecting to the instance via SSH.
-  
-   # User data script to install and start Nginx, This script will run when the instance is launched
-    # 1.)This starts a shell script using Bash running on the instances first boot.
-    # 2.)Updates the package list
-    # 3.)Installs Nginx
-    # 4.)Starts the Nginx service
-    # 5.)Enables Nginx to start on boot
-    # 6.)Ends the script
+  name_prefix   = "web-launch-template-"
+  image_id      = "ami-0dba2cb6798deb6d8"
+  instance_type = "t2.micro"
+  key_name      = "car_key"
 
-    user_data = <<-EOF
-        #!/bin/bash
-        sudo apt update
-        sudo apt install -y nginx
-        echo "<h1>Hello from My (SCALED) Terraform Web Server!</h1><p>This is a Scaled Website running on a EC2 instance user_data.</p>" | sudo tee /var/www/html/index.html
-        sudo systemctl start nginx
-        sudo systemctl enable nginx
-    EOF
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    set -e
+    sudo apt update
+    sudo apt install -y nginx
+    echo "<h1>Hello from My (SCALED) Terraform Web Server!</h1><p>This is a Scaled Website running on a EC2 instance user_data.</p>" | sudo tee /var/www/html/index.html
+    sudo systemctl start nginx
+    sudo systemctl enable nginx
+  EOF
+  )
 
-    lifecycle {
-        create_before_destroy = true
-    }
+  lifecycle {
+    create_before_destroy = true
+  }
 
-    tags = {
-        Name = "web_launch_template"
-    }
+  tags = {
+    Name = "web_launch_template"
+  }
 }
-
 #-------------------AUTO SCALING GROUP---------------------
 resource "aws_autoscaling_group" "web_asg" {
     desired_capacity     = 1
