@@ -1,13 +1,19 @@
+#-------------PROVIDER CONFIGURATION---------------------
 terraform {
-    required_providers {
-        aws = {
-        source  = "hashicorp/aws"
-        version = "~> 4.0"
-        }
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
     }
-    
-    required_version = ">= 1.0.0"
+    newrelic = {
+      source  = "newrelic/newrelic"
+      version = "~> 3.0"
+    }
+  }
+
+  required_version = ">= 1.0.0"
 }
+
 
 #-------------------TERRAFORM CLOUD---------------------
 # This block configures the Terraform Cloud backend for storing the state file remotely.
@@ -52,13 +58,31 @@ variable "AVAILABILITY_ZONE2" {
   
 }
 
-#------------------PROVIDERS----------------------
+variable "NEW_RELIC_ACCOUNT_ID" {
+  description = "New Relic Account ID"
+  type        = string
+}
+
+variable "NEW_RELIC_API_KEY" {
+  description = "New Relic API Key"
+  type        = string
+  sensitive   = true
+}
+
+#------------------PROVIDER DEFINITION----------------------
 provider "aws" {
     region     = var.AWS_REGION
     access_key = var.HOPETONMON_COPY_ACCESS_KEY
     secret_key = var.HOPETONMON_COPY_SECRET_KEY
   
 }
+
+provider "newrelic" {
+  account_id = var.NEW_RELIC_ACCOUNT_ID
+  api_key    = var.NEW_RELIC_API_KEY
+  region     = "US" # or "EU" depending on your New Relic account
+}
+
 
 #-------------------VPC---------------------
 resource "aws_vpc" "web_vpc" {
