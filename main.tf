@@ -258,31 +258,9 @@ resource "aws_launch_template" "web_launch_template" {
   instance_type = "t2.micro"
   key_name      = "car_key"
 
-  user_data = base64encode(<<-EOF
-    #!/bin/bash
-    set -e
-
-    # Install nginx
-    sudo apt update
-    sudo apt install -y nginx
-    echo "<h1>Hello from My (SCALED) Terraform Web Server!</h1><p>This is a Scaled Website running on an EC2 instance with user_data.</p>" | sudo tee /var/www/html/index.html
-    sudo systemctl start nginx
-    sudo systemctl enable nginx
-
-    # Install New Relic Infrastructure Agent
-    curl -Ls https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/newrelic-infra-archive-keyring.gpg > /dev/null
-    echo "deb [signed-by=/usr/share/keyrings/newrelic-infra-archive-keyring.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt focal main" | sudo tee /etc/apt/sources.list.d/newrelic-infra.list
-    sudo apt update
-    sudo apt install -y newrelic-infra
-
-    # Configure with your New Relic license key
-    echo "license_key: YOUR_NEW_RELIC_LICENSE_KEY" | sudo tee -a /etc/newrelic-infra.yml
-
-    # Start and enable New Relic Infra Agent
-    sudo systemctl enable newrelic-infra
-    sudo systemctl start newrelic-infra
-  EOF
-  )
+  user_data = base64encode(templatefile("${path.module}/user_data.sh.tpl", {
+    new_relic_license_key = var.NEW_RELIC_LICENSE_KEY
+  }))
 
   lifecycle {
     create_before_destroy = true
