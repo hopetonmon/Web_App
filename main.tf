@@ -66,13 +66,11 @@ variable "NEW_RELIC_ACCOUNT_ID" {
 variable "NEW_RELIC_API_KEY" {
   description = "New Relic API Key"
   type        = string
-  sensitive   = true
 }
 
 variable "NEW_RELIC_LICENSE_KEY" {
   description = "New Relic License Key"
   type        = string
-  sensitive   = true
 }
 #------------------PROVIDER DEFINITION----------------------
 provider "aws" {
@@ -333,16 +331,6 @@ output "web_instance_private_ips" {
 
 
 #-------------------NEW RELIC MONITORING---------------------
-resource "newrelic_infra_agent" "web_infra_agent" { #This resource is very important. It installs the New Relic Infrastructure Agent on the EC2 instances to monitor their performance and health.
-  name = "web_infra_agent"
-  description = "New Relic Infrastructure Agent for Web App"
-  enabled = true
-  tags = {
-    environment = "production"
-    role        = "web_server"
-  }
-}
-
 resource "newrelic_alert_policy" "web_app_policy" {
   name = "Web App Alert Policy"
 }
