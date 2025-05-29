@@ -256,11 +256,26 @@ resource "aws_launch_template" "web_launch_template" {
   user_data = base64encode(<<-EOF
     #!/bin/bash
     set -e
+
+    # Install nginx
     sudo apt update
     sudo apt install -y nginx
-    echo "<h1>Hello from My (SCALED) Terraform Web Server!</h1><p>This is a Scaled Website running on a EC2 instance user_data.</p>" | sudo tee /var/www/html/index.html
+    echo "<h1>Hello from My (SCALED) Terraform Web Server!</h1><p>This is a Scaled Website running on an EC2 instance with user_data.</p>" | sudo tee /var/www/html/index.html
     sudo systemctl start nginx
     sudo systemctl enable nginx
+
+    # Install New Relic Infrastructure Agent
+    curl -Ls https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/newrelic-infra-archive-keyring.gpg > /dev/null
+    echo "deb [signed-by=/usr/share/keyrings/newrelic-infra-archive-keyring.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt focal main" | sudo tee /etc/apt/sources.list.d/newrelic-infra.list
+    sudo apt update
+    sudo apt install -y newrelic-infra
+
+    # Configure with your New Relic license key
+    echo "license_key: YOUR_NEW_RELIC_LICENSE_KEY" | sudo tee -a /etc/newrelic-infra.yml
+
+    # Start and enable New Relic Infra Agent
+    sudo systemctl enable newrelic-infra
+    sudo systemctl start newrelic-infra
   EOF
   )
 
@@ -272,6 +287,7 @@ resource "aws_launch_template" "web_launch_template" {
     Name = "web_launch_template"
   }
 }
+
 #-------------------AUTO SCALING GROUP---------------------
 resource "aws_autoscaling_group" "web_asg" {
     desired_capacity     = 1
@@ -332,3 +348,36 @@ output "web_instance_private_ips" {
   value       = data.aws_instances.web_instances.private_ips
 }
 
+
+#-------------------NEW RELIC MONITORING---------------------
+resource "newrelic_infra_agent" "web_infra_agent" { #This resource is very important. It installs the New Relic Infrastructure Agent on the EC2 instances to monitor their performance and health.
+  name = "web_infra_agent"
+  description = "New Relic Infrastructure Agent for Web App"
+  enabled = true
+  tags = {
+    environment = "production"
+    role        = "web_server"
+  }
+}
+
+resource "newrelic_alert_policy" "web_app_policy" {
+  name = "Web App Alert Policy"
+}
+
+resource "newrelic_nrql_alert_condition" "high_cpu_alert" {
+  policy_id = newrelic_alert_policy.web_app_policy.id
+  name      = "High CPU Usage"
+  type      = "static"
+  enabled   = true
+
+  nrql {
+    query = "SELECT average(cpuPercent) FROM SystemSample WHERE `host.hostname` LIKE '%web%' FACET `host.hostname`"
+  }
+
+  critical {
+    operator              = "above"
+    threshold             = 80
+    threshold_duration    = 300  # 5 minutes
+    threshold_occurrences = "ALL"
+  }
+}
