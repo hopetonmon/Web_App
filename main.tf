@@ -69,6 +69,11 @@ variable "NEW_RELIC_API_KEY" {
   sensitive   = true
 }
 
+variable "NEW_RELIC_LICENSE_KEY" {
+  description = "New Relic License Key"
+  type        = string
+  sensitive   = true
+}
 #------------------PROVIDER DEFINITION----------------------
 provider "aws" {
     region     = var.AWS_REGION
