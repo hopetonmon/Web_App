@@ -1,4 +1,3 @@
 terraform.tfvars
-.terraform.lock.hcl
 .terraform
 login_terraform.sh
