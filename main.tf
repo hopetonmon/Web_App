@@ -1,5 +1,7 @@
 #-------------PROVIDER CONFIGURATION---------------------
 terraform {
+  required_version = ">= 1.0.0"
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -11,21 +13,12 @@ terraform {
     }
   }
 
-  required_version = ">= 1.0.0"
-}
-
-
-#-------------------TERRAFORM CLOUD---------------------
-# This block configures the Terraform Cloud backend for storing the state file remotely.
-terraform { 
-  cloud { 
-    
-    organization = "Foundationmon" 
-
-    workspaces { 
-      name = "Web_App" 
-    } 
-  } 
+  cloud { # This block is used to configure Terraform Cloud or Terraform Enterprise.
+    organization = "Foundationmon"
+    workspaces {
+      name = "Web_App"
+    }
+  }
 }
 
 #-----------------------VARIABLES-----------------------------
