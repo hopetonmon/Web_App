@@ -13,7 +13,7 @@ terraform {
     }
   }
 
-  cloud { # This block is used to configure Terraform Cloud or Terraform Enterprise.
+  cloud {
     organization = "Foundationmon"
     workspaces {
       name = "Web_App"
