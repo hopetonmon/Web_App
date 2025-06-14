@@ -164,7 +164,7 @@ resource "aws_nat_gateway" "nat_gateway1" {
 }
 
 resource "aws_nat_gateway" "nat_gateway2" {
-    allocation_id = aws_eip.nat_eip2
+    allocation_id = aws_eip.nat_eip2.id
     subnet_id     = aws_subnet.public_subnet2.id # NAT Gateway must be in a public subnet
     tags = {
         Name = "nat_gateway2"
