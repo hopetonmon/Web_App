@@ -142,8 +142,37 @@ resource "aws_internet_gateway" "web_igw" {
     }
 }
 
+#-------------------NAT GATEWAY---------------------
+resource "aws_eip" "nat_eip1" {
+    # When you create a NAT Gateway, it needs a public IP address to send traffic out to the internet. That’s where this Elastic IP comes in
+    tags = {
+        Name = "nat_eip1"
+    }
+}
+
+resource "aws_eip" "nat_eip2" {
+    tags = {
+        Name = "nat_eip2"
+    }
+}
+resource "aws_nat_gateway" "nat_gateway1" {
+    allocation_id = aws_eip.nat_eip1.id
+    subnet_id     = aws_subnet.public_subnet1.id # NAT Gateway must be in a public subnet
+    tags = {
+        Name = "nat_gateway1"
+    }
+}
+
+resource "aws_nat_gateway" "nat_gateway2" {
+    allocation_id = aws_eip.nat_eip2
+    subnet_id     = aws_subnet.public_subnet2.id # NAT Gateway must be in a public subnet
+    tags = {
+        Name = "nat_gateway2"
+    }
+}
+
 #-------------------ROUTE TABLE---------------------
-resource "aws_route_table" "web_route_table" {
+resource "aws_route_table" "igw_route_table" {
     vpc_id = aws_vpc.web_vpc.id
     route {
         cidr_block = "0.0.0.0/0"
@@ -151,7 +180,30 @@ resource "aws_route_table" "web_route_table" {
   
 }
     tags = {
-        Name = "web_route_table"
+        Name = "igw_route_table"
+    }
+}
+
+resource "aws_route_table" "nat_route_table1" {
+    vpc_id = aws_vpc.web_vpc.id
+    route {
+        cidr_block = "0.0.0.0/0"
+        nat_gateway_id = aws_nat_gateway.nat_gateway1.id
+  
+}
+    tags = {
+        Name = "nat_route_table1"
+    }
+}
+
+resource "aws_route_table" "nat_route_table2" {
+    vpc_id = aws_vpc.web_vpc.id
+    route {
+        cidr_block = "0.0.0.0/0"
+        nat_gateway_id = aws_nat_gateway.nat_gateway2.id
+}
+    tags = {
+        Name = "nat_route_table2"
     }
 }
 
