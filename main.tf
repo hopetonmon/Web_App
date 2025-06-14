@@ -234,7 +234,7 @@ resource "aws_lb" "web_alb" {
     internal           = false
     load_balancer_type = "application"
     security_groups    = [aws_security_group.alb_sg.id]
-    subnets            = [aws_subnet.web_subnet1.id, aws_subnet.web_subnet2.id]  
+    subnets            = [aws_subnet.public_subnet1.id, aws_subnet.public_subnet2.id]  
     enable_http2 = true
 
     tags = {
