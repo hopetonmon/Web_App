@@ -208,14 +208,14 @@ resource "aws_route_table" "nat_route_table2" {
 }
 
 #-------------------ROUTE TABLE ASSOCIATION---------------------
-resource "aws_route_table_association" "web_route_table_assoc" {
-    subnet_id      = aws_subnet.web_subnet1.id  # Associate the route table with your subnet
-    route_table_id = aws_route_table.web_route_table.id
+resource "aws_route_table_association" "public_subnet1_route_table_assoc" {
+    subnet_id      = aws_subnet.public_subnet1.id  # Associate the route table with your subnet
+    route_table_id = aws_route_table.igw_route_table.id
 }
 
-resource "aws_route_table_association" "web_route_table_assoc2" {
-    subnet_id      = aws_subnet.web_subnet2.id  # Associate the route table with your subnet
-    route_table_id = aws_route_table.web_route_table.id
+resource "aws_route_table_association" "public_subnet2_route_table_assoc" {
+    subnet_id      = aws_subnet.public_subnet2.id  # Associate the route table with your subnet
+    route_table_id = aws_route_table.igw_route_table.id
 }
 
 #-------------------LOAD BALANCER---------------------
