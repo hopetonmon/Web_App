@@ -354,7 +354,7 @@ resource "aws_autoscaling_group" "web_asg" {
     desired_capacity     = 1
     max_size             = 5
     min_size             = 1
-    vpc_zone_identifier = [aws_subnet.web_subnet1.id, aws_subnet.web_subnet2.id]
+    vpc_zone_identifier = [aws_subnet.public_subnet1.id, aws_subnet.public_subnet2.id]
     launch_template {
         id      = aws_launch_template.web_launch_template.id
         version = "$Latest"
