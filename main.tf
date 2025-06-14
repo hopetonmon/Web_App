@@ -218,6 +218,16 @@ resource "aws_route_table_association" "public_subnet2_route_table_assoc" {
     route_table_id = aws_route_table.igw_route_table.id
 }
 
+resource "aws_route_table_association" "private_subnet1_route_table_assoc" {
+    subnet_id      = aws_subnet.private_subnet1.id  # Associate the route table with your subnet
+    route_table_id = aws_route_table.nat_route_table1.id
+}
+
+resource "aws_route_table_association" "private_subnet2_route_table_assoc" {
+    subnet_id      = aws_subnet.private_subnet2.id  # Associate the route table with your subnet
+    route_table_id = aws_route_table.nat_route_table2.id
+}
+
 #-------------------LOAD BALANCER---------------------
 resource "aws_lb" "web_alb" {
     name               = "web-alb"
