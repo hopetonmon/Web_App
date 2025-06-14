@@ -351,19 +351,26 @@ resource "aws_launch_template" "web_launch_template" {
 
 #-------------------AUTO SCALING GROUP---------------------
 resource "aws_autoscaling_group" "web_asg" {
-    desired_capacity     = 1
-    max_size             = 5
-    min_size             = 1
-    vpc_zone_identifier = [aws_subnet.public_subnet1.id, aws_subnet.public_subnet2.id]
-    launch_template {
-        id      = aws_launch_template.web_launch_template.id
-        version = "$Latest"
-    }
-    tag {
-        key                 = "Name"
-        value               = "web_asg_instance"
-        propagate_at_launch = true
-    }
+  desired_capacity     = 1
+  max_size             = 5
+  min_size             = 1
+  vpc_zone_identifier = [
+    aws_subnet.private_subnet1.id,
+    aws_subnet.private_subnet2.id
+  ]
+
+  launch_template {
+    id      = aws_launch_template.web_launch_template.id
+    version = "$Latest"
+  }
+
+  target_group_arns = [aws_lb_target_group.web_target_group.arn] #This line associates the Auto Scaling Group with the ALB Target Group, allowing the ALB to route traffic to instances in the ASG.
+
+  tag {
+    key                 = "Name"
+    value               = "web_asg_instance"
+    propagate_at_launch = true
+  }
 }
 
 #-------------------AUTO SCALING POLICY---------------------
@@ -407,6 +414,10 @@ output "web_instance_public_ips" { #After running terraform apply, Terraform wil
 output "web_instance_private_ips" {
   description = "Private IPs of EC2 instances in the ASG"
   value       = data.aws_instances.web_instances.private_ips
+}
+
+output "alb_dns_name" {
+  value = aws_lb.web_alb.dns_name
 }
 
 
