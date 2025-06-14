@@ -84,7 +84,7 @@ provider "newrelic" {
 resource "aws_vpc" "web_vpc" {
     cidr_block = "10.0.0.0/16"
     enable_dns_support = true #Enables or disables DNS resolution within the VPC.
-    enable_dns_hostnames = false # Enables or disables the assignment of public DNS hostnames to instances launched in the VPC.
+    enable_dns_hostnames = true # Enables or disables the assignment of public DNS hostnames to instances launched in the VPC.
     tags = {
         Name = "web_vpc"
     }
