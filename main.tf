@@ -91,26 +91,48 @@ resource "aws_vpc" "web_vpc" {
 }
 
 #-------------------SUBNETS---------------------
-resource "aws_subnet" "web_subnet1" {
+resource "aws_subnet" "public_subnet1" {
     vpc_id            = aws_vpc.web_vpc.id
     cidr_block        = "10.0.1.0/24"
     availability_zone =  var.AVAILABILITY_ZONE
     map_public_ip_on_launch = true #If set to true: Instances launched in this subnet will automatically be assigned a public IP address. This is useful for subnets that need to host publicly accessible resources, such as web servers.
     tags = {
-        Name = "web_subnet"
+        Name = "public_subnet1"
     }
 }
 
-resource "aws_subnet" "web_subnet2" {
+resource "aws_subnet" "public_subnet2" {
     vpc_id            = aws_vpc.web_vpc.id
     cidr_block        = "10.0.0.0/24"
     availability_zone = var.AVAILABILITY_ZONE2
     map_public_ip_on_launch = true #If set to true: Instances launched in this subnet will automatically be assigned a public IP address. This is useful for subnets that need to host publicly accessible resources, such as web servers.
     tags = {
-        Name = "web_subnet2"
+        Name = "public_subnet2"
     }
   
 }
+
+resource "aws_subnet" "private_subnet1" {
+    vpc_id            = aws_vpc.web_vpc.id
+    cidr_block        = "10.0.3.0/24"
+    availability_zone = var.AVAILABILITY_ZONE
+    map_public_ip_on_launch = false #If set to true: Instances launched in this subnet will automatically be assigned a public IP address. This is useful for subnets that need to host publicly accessible resources, such as web servers.
+    tags = {
+        Name = "private_subnet1"
+    }
+  
+}
+
+resource "aws_subnet" "private_subnet2" {
+    vpc_id            = aws_vpc.web_vpc.id
+    cidr_block        = "10.0.4.0/24"
+    availability_zone = var.AVAILABILITY_ZONE2
+    map_public_ip_on_launch = false #If set to true: Instances launched in this subnet will automatically be assigned a public IP address. This is useful for subnets that need to host publicly accessible resources, such as web servers.
+    tags = {
+        Name = "private_subnet2"
+    }
+}
+
 
 #-------------------INTERNET GATEWAY---------------------
 resource "aws_internet_gateway" "web_igw" {
