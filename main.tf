@@ -294,6 +294,12 @@ resource "aws_security_group" "web_sg" {
         protocol    = "tcp"
         cidr_blocks = ["0.0.0.0/0"] # Allow SSH traffic from any(where
     }
+    ingress {
+        from_port   = 443
+        to_port     = 443
+        protocol    = "tcp"
+        cidr_blocks = ["0.0.0.0/"] #Allow HTTPS traffic from anywhere
+    }
     egress {
         from_port   = 0
         to_port     = 0
