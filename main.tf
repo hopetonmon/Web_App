@@ -103,7 +103,7 @@ resource "aws_subnet" "public_subnet1" {
 
 resource "aws_subnet" "public_subnet2" {
     vpc_id            = aws_vpc.web_vpc.id
-    cidr_block        = "10.0.0.0/24"
+    cidr_block        = "10.0.2.0/24"
     availability_zone = var.AVAILABILITY_ZONE2
     map_public_ip_on_launch = true #If set to true: Instances launched in this subnet will automatically be assigned a public IP address. This is useful for subnets that need to host publicly accessible resources, such as web servers.
     tags = {
