@@ -415,7 +415,7 @@ data "aws_instances" "web_instances" {
     values = ["running"]
   }
 
-  depends_on = [aws_autoscaling_group.web_asg]
+  depends_on = [aws_autoscaling_group.web_asg] #This tells Terraform: “Wait until the Auto Scaling Group (web_asg) is created before trying to query EC2 instances using the aws_instances data block.”
 }
 
 #-------------------OUTPUTS---------------------
