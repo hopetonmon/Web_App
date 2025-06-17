@@ -433,6 +433,17 @@ output "alb_dns_name" {
   value = aws_lb.web_alb.dns_name
 }
 
+output "vpc_id" {
+  value = aws_vpc.web_vpc.id
+}
+
+output "nat_gateway1_ip" {
+  value = aws_eip.nat_eip1.public_ip
+}
+output "nat_gateway2_ip" {
+  value = aws_eip.nat_eip2.public_ip
+}
+
 
 #-------------------NEW RELIC MONITORING---------------------
 resource "newrelic_alert_policy" "web_app_policy" {
