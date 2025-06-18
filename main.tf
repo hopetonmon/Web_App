@@ -446,6 +446,23 @@ output "nat_gateway2_ip" {
 
 
 #-------------------NEW RELIC MONITORING---------------------
+
+module "newrelic_aws_integration" {
+  source  = "newrelic/aws-integration/newrelic"
+  version = "~> 3.0"
+
+  linked_account_name = "My AWS Account"
+  aws_account_id      = var.AWS_ACCOUNT_ID
+  nr_account_id       = var.NEW_RELIC_ACCOUNT_ID
+
+  cloudwatch_metric_stream_enabled = true
+
+  enable_ec2_monitoring    = true
+  enable_elb_monitoring    = true
+  enable_autoscaling_monitoring = true
+  # Add other services you want to monitor
+}
+
 resource "newrelic_alert_policy" "web_app_policy" {
   name = "Web App Alert Policy"
 }
