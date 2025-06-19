@@ -298,7 +298,7 @@ resource "aws_security_group" "web_sg" {
         from_port   = 443
         to_port     = 443
         protocol    = "tcp"
-        cidr_blocks = ["0.0.0.0/"] #Allow HTTPS traffic from anywhere
+        cidr_blocks = ["0.0.0.0/0"] #Allow HTTPS traffic from anywhere
     }
     egress {
         from_port   = 0
@@ -447,23 +447,17 @@ output "nat_gateway2_ip" {
 
 #-------------------NEW RELIC MONITORING---------------------
 
-resource "newrelic_cloud_aws_linked_account" "aws-newrelic" {
-  name         = "My AWS Account"
-  arn          = var.AWS_LINKED_ACCOUNT_ARN
-  external_id  = var.AWS_LINKED_ACCOUNT_EXTERNAL_ID
-}
+module "newrelic_aws_integration" {
+  source = "github.com/newrelic/terraform-provider-newrelic//examples/modules/cloud-integrations/aws"
 
-resource "newrelic_cloud_aws_integration" "aws" {
-  linked_account_id = newrelic_cloud_aws_linked_account.aws-newrelic.id
+  newrelic_account_id     = var.NEW_RELIC_ACCOUNT_ID
+  newrelic_account_region = "US"
+  name                    = "production"
 
-  ec2 {
-    metrics_enabled = true
-  }
-  autoscaling {
-    metrics_enabled = true
-  }
-  elastic_load_balancing {
-    metrics_enabled = true
+  include_metric_filters = {
+    "AWS/EC2" = [], # includes ALL EC2 metrics
+    "AWS/ELB" = [], # includes ALL ELB metrics
+    "AWS/AutoScaling" = [], # includes ALL Auto Scaling metrics}
   }
 }
 
