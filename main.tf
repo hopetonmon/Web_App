@@ -461,6 +461,13 @@ module "newrelic_aws_integration" { #This module sets up the New Relic AWS integ
   }
 }
 
+#-------------------NEW RELIC ALERTS---------------------
+
+resource "newrelic_alert_policy" "web_app_policy" { #Creates an alert policy (a container/folder for alerts)
+
+ name = "Web App Alert Policy"
+}
+
 resource "newrelic_alert_channel" "email_channel" { #Creates an alert channel to send email notifications when alerts are triggered
   account_id = var.NEW_RELIC_ACCOUNT_ID
   name = "Email Alerts"
@@ -472,11 +479,13 @@ resource "newrelic_alert_channel" "email_channel" { #Creates an alert channel to
   }
 }
 
-
-resource "newrelic_alert_policy" "web_app_policy" { #Creates an alert policy (a container/folder for alerts)
-
- name = "Web App Alert Policy"
+resource "newrelic_alert_policy_channel" "policy_email_link" { #Links the alert policy to the email alert channel
+  account_id = var.NEW_RELIC_ACCOUNT_ID
+  policy_id   = newrelic_alert_policy.web_app_policy.id
+  channel_ids = [newrelic_alert_channel.email_channel.id]
 }
+
+
 
 resource "newrelic_nrql_alert_condition" "high_cpu_alert" { #	Creates an alert rule that watches CPU usage above 80% for 5 minutes on web hosts
   policy_id = newrelic_alert_policy.web_app_policy.id
