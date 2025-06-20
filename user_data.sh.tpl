@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Generate 3-character code and set hostname
+code=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 3)
+hostnamectl set-hostname instance-$code
+
 # Install nginx
 sudo apt update
 sudo apt install -y nginx

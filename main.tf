@@ -358,7 +358,7 @@ resource "aws_launch_template" "web_launch_template" {
   }
 
   tags = {
-    Name = "web_launch_template"
+    Name = "instance"
   }
 }
 
