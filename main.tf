@@ -473,7 +473,7 @@ resource "newrelic_nrql_alert_condition" "high_cpu_alert" { #	Creates an alert r
   enabled   = true
 
   nrql {
-    query = "SELECT average(cpuPercent) FROM SystemSample WHERE `host.hostname` LIKE '%web%' FACET `host.hostname`" #This query monitors the average CPU percentage of hosts whose hostname includes "web"
+    query = "SELECT average(cpuPercent) FROM SystemSample FACET `host.hostname`" #This query monitors the average CPU percentage of all hosts in the system.
   }
 
   critical {
