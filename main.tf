@@ -429,8 +429,8 @@ output "web_instance_private_ips" {
   value       = data.aws_instances.web_instances.private_ips
 }
 
-output "alb_dns_name" {
-  value = aws_lb.web_alb.dns_name
+output "alb_dns_name" { #This output will show the DNS name of the Application Load Balancer (ALB) created in the VPC. We use this DNS name to access our web application.
+  value = aws_lb.web_alb.dns_name 
 }
 
 output "vpc_id" {
