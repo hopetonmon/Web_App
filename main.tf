@@ -461,18 +461,19 @@ module "newrelic_aws_integration" {
   }
 }
 
-resource "newrelic_alert_policy" "web_app_policy" {
-  name = "Web App Alert Policy"
+resource "newrelic_alert_policy" "web_app_policy" { #Creates an alert policy (a container/folder for alerts)
+
+ name = "Web App Alert Policy"
 }
 
-resource "newrelic_nrql_alert_condition" "high_cpu_alert" {
+resource "newrelic_nrql_alert_condition" "high_cpu_alert" { #	Creates an alert rule that watches CPU usage above 80% for 5 minutes on web hosts
   policy_id = newrelic_alert_policy.web_app_policy.id
   name      = "High CPU Usage"
   type      = "static"
   enabled   = true
 
   nrql {
-    query = "SELECT average(cpuPercent) FROM SystemSample WHERE `host.hostname` LIKE '%web%' FACET `host.hostname`"
+    query = "SELECT average(cpuPercent) FROM SystemSample WHERE `host.hostname` LIKE '%web%' FACET `host.hostname`" #This query monitors the average CPU percentage of hosts whose hostname includes "web"
   }
 
   critical {
