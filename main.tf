@@ -447,7 +447,7 @@ output "nat_gateway2_ip" {
 
 #-------------------NEW RELIC MONITORING---------------------
 
-module "newrelic_aws_integration" {
+module "newrelic_aws_integration" { #This module sets up the New Relic AWS integration to monitor AWS resources.
   source = "github.com/newrelic/terraform-provider-newrelic//examples/modules/cloud-integrations/aws"
 
   newrelic_account_id     = var.NEW_RELIC_ACCOUNT_ID
@@ -460,6 +460,18 @@ module "newrelic_aws_integration" {
     "AWS/AutoScaling" = [], # includes ALL Auto Scaling metrics}
   }
 }
+
+resource "newrelic_alert_channel" "email_channel" { #Creates an alert channel to send email notifications when alerts are triggered
+  account_id = var.NEW_RELIC_ACCOUNT_ID
+  name = "Email Alerts"
+  type = "email"
+
+  config {
+    recipients = "hopetonmon@gmail.com" #Replace with your email address
+    include_json_attachment = "true"
+  }
+}
+
 
 resource "newrelic_alert_policy" "web_app_policy" { #Creates an alert policy (a container/folder for alerts)
 
