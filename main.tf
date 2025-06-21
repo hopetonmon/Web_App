@@ -446,61 +446,32 @@ output "nat_gateway2_ip" {
 
 
 #-------------------NEW RELIC MONITORING---------------------
+# Create an IAM role in AWS for New Relic to assume
+resource "aws_iam_role" "newrelic_integration" {
+  name = "NewRelicInfrastructureIntegration"
 
-module "newrelic_aws_integration" { #This module sets up the New Relic AWS integration to monitor AWS resources.
-  source = "github.com/newrelic/terraform-provider-newrelic//examples/modules/cloud-integrations/aws"
-
-  newrelic_account_id     = var.NEW_RELIC_ACCOUNT_ID
-  newrelic_account_region = "US"
-  name                    = "production"
-
-  include_metric_filters = {
-    "AWS/EC2" = [], # includes ALL EC2 metrics
-    "AWS/ELB" = [], # includes ALL ELB metrics
-    "AWS/AutoScaling" = [], # includes ALL Auto Scaling metrics}
-  }
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::754728514883:root" # New Relic's AWS account ID
+        }
+        Action = "sts:AssumeRole"
+        Condition = {
+          StringEquals = {
+            "sts:ExternalId" = "6762530" # New Relic's External ID
+          }
+        }
+      }
+    ]
+  })
 }
 
-#-------------------NEW RELIC ALERTS---------------------
-
-resource "newrelic_alert_policy" "web_app_policy" { #Creates an alert policy (a container/folder for alerts)
-
- name = "Web App Alert Policy"
+#Link AWS account in New Relic
+resource "newrelic_cloud_aws_link_account" "link_account" {
+  name = "My AWS Link"
+  arn  = aws_iam_role.newrelic_integration.arn
 }
 
-resource "newrelic_alert_channel" "email_channel" { #Creates an alert channel to send email notifications when alerts are triggered
-  account_id = var.NEW_RELIC_ACCOUNT_ID
-  name = "Email Alerts"
-  type = "email"
-
-  config {
-    recipients = "hopetonmon@gmail.com" #Replace with your email address
-    include_json_attachment = "true"
-  }
-}
-
-resource "newrelic_alert_policy_channel" "policy_email_link" { #Links the alert policy to the email alert channel
-  account_id = var.NEW_RELIC_ACCOUNT_ID
-  policy_id   = newrelic_alert_policy.web_app_policy.id
-  channel_ids = [newrelic_alert_channel.email_channel.id]
-}
-
-
-
-resource "newrelic_nrql_alert_condition" "high_cpu_alert" { #	Creates an alert rule that watches CPU usage above 80% for 5 minutes on web hosts
-  policy_id = newrelic_alert_policy.web_app_policy.id
-  name      = "High CPU Usage"
-  type      = "static"
-  enabled   = true
-
-  nrql {
-    query = "SELECT average(cpuPercent) FROM SystemSample FACET `host.hostname`" #This query monitors the average CPU percentage of all hosts in the system.
-  }
-
-  critical {
-    operator              = "above"
-    threshold             = 80
-    threshold_duration    = 300  # 5 minutes
-    threshold_occurrences = "ALL"
-  }
-}
