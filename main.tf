@@ -7,10 +7,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.0"
     }
-    newrelic = {
-      source  = "newrelic/newrelic"
-      version = "~> 3.0"
-    }
   }
 
   cloud {
@@ -71,12 +67,6 @@ provider "aws" {
     access_key = var.HOPETONMON_COPY_ACCESS_KEY
     secret_key = var.HOPETONMON_COPY_SECRET_KEY
   
-}
-
-provider "newrelic" {
-  account_id = var.NEW_RELIC_ACCOUNT_ID
-  api_key    = var.NEW_RELIC_API_KEY
-  region     = "US" # or "EU" depending on your New Relic account
 }
 
 
@@ -446,3 +436,4 @@ output "nat_gateway2_ip" {
 
 
 #-------------------AWS CLOUD WATCH---------------------
+
