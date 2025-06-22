@@ -47,16 +47,11 @@ variable "AVAILABILITY_ZONE2" {
   
 }
 
-variable "NEW_RELIC_ACCOUNT_ID" {
-  description = "New Relic Account ID"
-  type        = string
+variable "EMAIL" {
+  description = "My email address"
+  type = string
+  
 }
-
-variable "NEW_RELIC_API_KEY" {
-  description = "New Relic API Key"
-  type        = string
-}
-
 variable "NEW_RELIC_LICENSE_KEY" {
   description = "New Relic License Key"
   type        = string
