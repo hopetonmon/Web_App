@@ -429,6 +429,104 @@ output "nat_gateway2_ip" {
   value = aws_eip.nat_eip2.public_ip
 }
 
+#------------------SNS--------------------------
+
+# SNS Topic for email alerts
+resource "aws_sns_topic" "alerts" {
+  name = "alerts-topic"
+}
+
+#SNS Subscription to email (replace with your email)
+resource "aws_sns_topic_subscription" "email" {
+  topic_arn = aws_sns_topic.alerts.arn
+  protocol  = "email"
+  endpoint  = var.EMAIL  # Replace with your email
+
+}
+
+#-------------------IAM-------------------------
+
+resource "aws_iam_role" "monitoring_role" {
+  name = "MonitoringRole"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "ec2.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+# Attach policies for describing resources
+resource "aws_iam_policy" "monitoring_policy" {
+  name = "MonitoringPolicy"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:Describe*",
+        "cloudwatch:GetMetricData",
+        "cloudwatch:GetMetricStatistics",
+        "cloudwatch:ListMetrics",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:GetLogEvents",
+        "logs:FilterLogEvents",
+        "ec2:Describe*",
+        "autoscaling:Describe*",
+        "elasticloadbalancing:Describe*",
+        "rds:Describe*",
+        "s3:ListBucket",
+        "s3:GetObject"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "attach" {
+  role       = aws_iam_role.monitoring_role.name
+  policy_arn = aws_iam_policy.monitoring_policy.arn
+}
 
 #-------------------AWS CLOUD WATCH---------------------
+resource "aws_cloudwatch_dashboard" "infrastructure" {
+  dashboard_name = "MyInfrastructureDashboard"
 
+  # Generate dashboard JSON with the list of instance IDs
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type = "metric",
+        x = 0,
+        y = 0,
+        width = 12,
+        height = 6,
+        properties = {
+          metrics = [
+            [ "AWS/EC2", "CPUUtilization", "InstanceId", element(data.aws_instances.web_instances.ids, 0) ]  # First instance
+            # Add more entries if needed
+          ],
+          period = 300,
+          stat = "Average",
+          region = "us-east-1",
+          title = "EC2 CPU Utilization"
+        }
+      }
+      # Add more widgets here for other instances or metrics
+    ]
+  })
+}
