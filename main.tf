@@ -445,33 +445,4 @@ output "nat_gateway2_ip" {
 }
 
 
-#-------------------NEW RELIC MONITORING---------------------
-# Create an IAM role in AWS for New Relic to assume
-resource "aws_iam_role" "newrelic_integration" {
-  name = "NewRelicInfrastructureIntegration"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = "arn:aws:iam::754728514883:root" # New Relic's AWS account ID
-        }
-        Action = "sts:AssumeRole"
-        Condition = {
-          StringEquals = {
-            "sts:ExternalId" = "6762530" # New Relic's External ID
-          }
-        }
-      }
-    ]
-  })
-}
-
-#Link AWS account in New Relic
-resource "newrelic_cloud_aws_link_account" "link_account" {
-  name = "My AWS Link"
-  arn  = aws_iam_role.newrelic_integration.arn
-}
-
+#-------------------AWS CLOUD WATCH---------------------
