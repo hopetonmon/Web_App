@@ -8,10 +8,10 @@ echo "<h1>Hello from My (SCALED) Terraform Web Server!</h1><p>This is a Scaled W
 sudo systemctl start nginx
 sudo systemctl enable nginx
 
-# Install CloudWatch Agent
+# Install Amazon CloudWatch Agent
 sudo apt install -y amazon-cloudwatch-agent
 
-# Create basic config (you can expand this later)
+# Create CloudWatch Agent config file
 cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/bin/config.json
 {
   "metrics": {
@@ -31,6 +31,6 @@ cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/bin/config.json
 }
 EOF
 
-# Start the agent
+# Start CloudWatch Agent
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
   -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
