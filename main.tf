@@ -570,3 +570,24 @@ resource "aws_cloudwatch_metric_alarm" "instance_monitoring_started" { # This al
     Name = "ec2_monitoring_started_alarm"
   }
 }
+
+resource "aws_cloudwatch_metric_alarm" "test_email_alert" { # This alarm is a test to trigger an immediate email notification.
+  alarm_name          = "TestEmailNotificationAlarm"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 1
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 100
+  alarm_description   = "This is a test alarm to trigger an immediate email notification."
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+
+  dimensions = {
+    InstanceId = element(data.aws_instances.web_instances.ids, 0)
+  }
+
+  tags = {
+    Name = "test_email_alert"
+  }
+}
