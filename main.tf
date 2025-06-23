@@ -52,10 +52,7 @@ variable "EMAIL" {
   type = string
   
 }
-variable "NEW_RELIC_LICENSE_KEY" {
-  description = "New Relic License Key"
-  type        = string
-}
+
 #------------------PROVIDER DEFINITION----------------------
 provider "aws" {
     region     = var.AWS_REGION
@@ -333,9 +330,8 @@ resource "aws_launch_template" "web_launch_template" {
 
   vpc_security_group_ids = [aws_security_group.web_sg.id]
 
-
   user_data = base64encode(templatefile("${path.module}/user_data.sh.tpl", {
-    new_relic_license_key = var.NEW_RELIC_LICENSE_KEY
+    aws_region = var.AWS_REGION
   }))
 
   lifecycle {

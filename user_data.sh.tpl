@@ -8,15 +8,29 @@ echo "<h1>Hello from My (SCALED) Terraform Web Server!</h1><p>This is a Scaled W
 sudo systemctl start nginx
 sudo systemctl enable nginx
 
-# Install New Relic Infrastructure Agent
-curl -Ls https://download.newrelic.com/infrastructure_agent/gpg/newrelic-infra.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/newrelic-infra-archive-keyring.gpg > /dev/null
-echo "deb [signed-by=/usr/share/keyrings/newrelic-infra-archive-keyring.gpg] https://download.newrelic.com/infrastructure_agent/linux/apt focal main" | sudo tee /etc/apt/sources.list.d/newrelic-infra.list
-sudo apt update
-sudo apt install -y newrelic-infra
+# Install CloudWatch Agent
+sudo apt install -y amazon-cloudwatch-agent
 
-# Configure New Relic with injected license key
-echo "license_key: ${new_relic_license_key}" | sudo tee -a /etc/newrelic-infra.yml
+# Create basic config (you can expand this later)
+cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/bin/config.json
+{
+  "metrics": {
+    "append_dimensions": {
+      "InstanceId": "\${aws:InstanceId}"
+    },
+    "metrics_collected": {
+      "mem": {
+        "measurement": ["mem_used_percent"]
+      },
+      "disk": {
+        "measurement": ["used_percent"],
+        "resources": ["*"]
+      }
+    }
+  }
+}
+EOF
 
-# Start and enable agent
-sudo systemctl enable newrelic-infra
-sudo systemctl start newrelic-infra
+# Start the agent
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+  -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
