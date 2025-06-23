@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the desired Terraform version
-TERRAFORM_VERSION="1.11.0" # <--- **UPDATE THIS TO THE LATEST VERSION**
+TERRAFORM_VERSION="1.12.2" # <--- **UPDATE THIS TO THE LATEST VERSION**
 
 # Define the download URL for Linux AMD64 (most common Gitpod architecture)
 TERRAFORM_URL="https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip"

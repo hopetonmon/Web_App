@@ -530,3 +530,47 @@ resource "aws_cloudwatch_dashboard" "infrastructure" {
     ]
   })
 }
+
+#-------------------CLOUDWATCH ALARM---------------------
+resource "aws_cloudwatch_metric_alarm" "high_cpu_alarm" { # This alarm checks if the average CPU utilization of the first instance exceeds 80% for 10 minutes.
+  alarm_name          = "HighCPUUtilization"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 80
+  alarm_description   = "This alarm triggers if average CPU > 80% for 10 minutes."
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+
+  dimensions = {
+    InstanceId = element(data.aws_instances.web_instances.ids, 0)
+  }
+
+  tags = {
+    Name = "high_cpu_alarm"
+  }
+}
+
+
+resource "aws_cloudwatch_metric_alarm" "instance_monitoring_started" { # This alarm checks if the EC2 instance has started sending metrics to CloudWatch.
+  alarm_name          = "EC2MonitoringStarted"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 1
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 0  # As soon as any metric > 0 appears
+  alarm_description   = "EC2 instance has started sending metrics to CloudWatch."
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+
+  dimensions = {
+    InstanceId = element(data.aws_instances.web_instances.ids, 0)
+  }
+
+  tags = {
+    Name = "ec2_monitoring_started_alarm"
+  }
+}
