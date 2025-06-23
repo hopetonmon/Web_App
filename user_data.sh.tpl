@@ -16,7 +16,7 @@ cat <<EOF | sudo tee /opt/aws/amazon-cloudwatch-agent/bin/config.json
 {
   "metrics": {
     "append_dimensions": {
-      "InstanceId": "\${aws:InstanceId}"
+      "InstanceId": "$${aws:InstanceId}"
     },
     "metrics_collected": {
       "mem": {
