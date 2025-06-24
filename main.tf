@@ -498,13 +498,14 @@ resource "aws_iam_role_policy_attachment" "attach" {
   policy_arn = aws_iam_policy.monitoring_policy.arn
 }
 
-#-------------------AWS CLOUD WATCH---------------------
+#-------------------CLOUD WATCH---------------------
 resource "aws_cloudwatch_dashboard" "infrastructure" {
   dashboard_name = "MyInfrastructureDashboard"
 
   # Generate dashboard JSON with the list of instance IDs
   dashboard_body = jsonencode({
     widgets = [
+      #EC2 CPU Utilization Widget for the first instance
       {
         type = "metric",
         x = 0,
@@ -521,8 +522,24 @@ resource "aws_cloudwatch_dashboard" "infrastructure" {
           region = "us-east-1",
           title = "EC2 CPU Utilization"
         }
-      }
-      # Add more widgets here for other instances or metrics
+      },
+            # ALB Request Count (Counts number of successful requests to the ALB)
+      {
+        type = "metric",
+        x = 0,
+        y = 6,
+        width = 12,
+        height = 6,
+        properties = {
+          metrics = [
+            [ "AWS/ApplicationELB", "RequestCount", "LoadBalancer", aws_lb.web_alb.arn_suffix ]
+          ],
+          period = 300,
+          stat = "Sum",
+          region = var.AWS_REGION,
+          title = "ALB Request Count"
+        }
+      },
     ]
   })
 }
