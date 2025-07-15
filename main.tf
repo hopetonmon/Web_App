@@ -115,6 +115,8 @@ resource "aws_subnet" "private_subnet2" {
     }
 }
 
+#-----------------------DATA BASE------------------------------------
+
 
 #-------------------INTERNET GATEWAY---------------------
 resource "aws_internet_gateway" "web_igw" {
@@ -262,7 +264,7 @@ resource "aws_lb_listener" "web_listener" {
 resource "aws_security_group" "web_sg" {
     vpc_id = aws_vpc.web_vpc.id
     name   = "web_sg"
-    description = "Allow HTTP and SSH traffic"
+    description = "Allow HTTP and SSH traffic " #Should only allow SSH form know ip addresses.
   
     ingress {
         from_port   = 80
